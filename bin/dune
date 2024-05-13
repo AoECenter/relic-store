@@ -1,0 +1,8 @@
+(executable
+ (name main)
+ (public_name relic-store)
+ (package relic-store)
+ (modules main)
+ (instrumentation
+  (backend bisect_ppx))
+ (libraries uuidm sqlite3 lwt relic-sdk))
