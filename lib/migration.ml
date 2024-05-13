@@ -33,7 +33,7 @@ let read_sql_file path = Lwt_io.with_file ~mode:Lwt_io.input path Lwt_io.read
 let apply_migration file_path version up =
   let* sql = read_sql_file file_path in
   let* _ = exec_query sql in
-  let* _ = Logger.Async.info "[Migration::apply_migration] Applied migration %s" file_path in
+  let* _ = Logger.Async.info ~m:"Migration" ~f:"apply_migration" "Applied migration %s" file_path in
   if up then set_version version else set_version (version - 1)
 ;;
 
@@ -44,6 +44,19 @@ let backup_db () =
 
 let restore_backup () = Lwt_unix.system ("mv " ^ Database.db_path ^ ".bak " ^ Database.db_path) |> ignore
 
+let parse_migration_file file =
+  let base_name = Filename.basename file in
+  if Filename.check_suffix base_name ".up.sql"
+  then (
+    let version_str = String.sub base_name 0 4 in
+    Some (int_of_string version_str, true))
+  else if Filename.check_suffix base_name ".dn.sql"
+  then (
+    let version_str = String.sub base_name 0 4 in
+    Some (int_of_string version_str, false))
+  else None
+;;
+
 let upgrade migrations_folder =
   Lwt.catch
     (fun () ->
@@ -52,27 +65,16 @@ let upgrade migrations_folder =
       let start_version = match current_version with Some v -> v + 1 | None -> 1 in
       let* files = Lwt_unix.files_of_directory migrations_folder |> Lwt_stream.to_list in
       let* migration_files =
-        Lwt_list.filter_s
+        Lwt_list.filter_map_s
           (fun file ->
-            if Filename.check_suffix file ".up.sql"
-            then (
-              let file_version_str = Filename.chop_suffix (Filename.basename file) ".up.sql" in
-              let* file_version = Lwt.return (Core.int_of_string_verbose file_version_str) in
-              Lwt.return (file_version >= start_version))
-            else Lwt.return_false)
+            match parse_migration_file file with
+            | Some (version, true) when version >= start_version -> Lwt.return_some (version, file)
+            | _ -> Lwt.return_none)
           files
       in
-      let sorted_files =
-        List.sort
-          (fun a b ->
-            let version_a = Core.int_of_string_verbose (Filename.chop_suffix (Filename.basename a) ".up.sql") in
-            let version_b = Core.int_of_string_verbose (Filename.chop_suffix (Filename.basename b) ".up.sql") in
-            compare version_a version_b)
-          migration_files
-      in
+      let sorted_files = List.sort (fun (v1, _) (v2, _) -> compare v1 v2) migration_files in
       Lwt_list.iter_s
-        (fun file_path ->
-          let version = Core.int_of_string_verbose (Filename.chop_suffix (Filename.basename file_path) ".up.sql") in
+        (fun (version, file_path) ->
           let* _ = apply_migration (migrations_folder ^ "/" ^ file_path) version true in
           Lwt.return_unit)
         sorted_files
@@ -88,7 +90,7 @@ let downgrade migrations_folder =
   let* current_version = get_current_version () in
   match current_version with
   | Some v when v > 0 ->
-    let file_path = migrations_folder ^ Printf.sprintf "/%04d-init.dn.sql" v in
+    let file_path = migrations_folder ^ Printf.sprintf "/%04d-*.dn.sql" v in
     apply_migration file_path v false
   | _ -> Lwt.return @@ Some ()
 ;;
