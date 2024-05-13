@@ -9,9 +9,9 @@ let from_str id_str =
     else None
   with
   | Not_found ->
-    Printf.printf "Error: ID not found in string: %s\n" id_str;
+    Printf.printf "[Parser::Platform_id::from_str] Error: ID not found in string: %s\n" id_str;
     None
   | ex ->
-    Printf.printf "Error extracting ID: %s\n" (Printexc.to_string ex);
+    Printf.printf "[Parser::Platform_id::from_str] Error extracting ID: %s\n" (Printexc.to_string ex);
     None
 ;;

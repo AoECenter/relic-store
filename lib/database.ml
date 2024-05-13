@@ -1,7 +1,8 @@
 open Sqlite3
 open Lwt.Syntax
 
-let db_handle = db_open @@ Env.get "DB_PATH"
+let db_path = Env.get "DB_PATH"
+let db_handle = db_open db_path
 
 let init () =
   let* result =
