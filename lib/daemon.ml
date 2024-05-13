@@ -11,9 +11,7 @@ let rec tick client () =
   tick client ()
 ;;
 
-let run () =
-  let domain = Env.get "RELIC_LINK_DOMAIN" in
-  let game = Data.Game.Age2 in
+let run domain game =
   let client = Client.create domain game in
   let* db_version = Migration.get_current_version () in
   let* _ =
