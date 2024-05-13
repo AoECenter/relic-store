@@ -7,7 +7,9 @@ let rec tick client () =
   let* _ = Process.advertisements matches avatars in
   let* _ = Lwt_unix.sleep 4.0 in
   let end_time = Unix.gettimeofday () in
-  let* _ = Lwt_io.printf "[Daemon::tick] Tick took %d ms\n" (int_of_float @@ ((end_time -. start_time) *. 1000.0)) in
+  let* _ =
+    Logger.Async.info ~m:"Daemon" ~f:"tick" "Took %d ms" (int_of_float @@ ((end_time -. start_time) *. 1000.0))
+  in
   tick client ()
 ;;
 
@@ -15,11 +17,10 @@ let run domain game =
   let client = Client.create domain game in
   let* db_version = Migration.get_current_version () in
   let* _ =
-    Lwt_io.printf
-      "[Daemon::main] Launching with config\n\
-      \       * Domain: %s\n\
-      \       * Game: %s\n\
-      \       * Database iteration: %04d\n"
+    Logger.Async.info
+      ~m:"Daemon"
+      ~f:"main"
+      "Launching with config domain:%s game:%s db:%d"
       domain
       (Data.Game.to_str game)
       (match db_version with Some i -> i | None -> 0)

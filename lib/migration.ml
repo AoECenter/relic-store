@@ -33,7 +33,7 @@ let read_sql_file path = Lwt_io.with_file ~mode:Lwt_io.input path Lwt_io.read
 let apply_migration file_path version up =
   let* sql = read_sql_file file_path in
   let* _ = exec_query sql in
-  let* _ = Lwt_io.printf "[Migration::apply_migration] Applied migration %s\n" file_path in
+  let* _ = Logger.Async.info "[Migration::apply_migration] Applied migration %s" file_path in
   if up then set_version version else set_version (version - 1)
 ;;
 
@@ -79,7 +79,7 @@ let upgrade migrations_folder =
       |> Lwt.map (fun () -> Ok ()))
     (fun e ->
       let error_msg = Printexc.to_string e in
-      let* () = Lwt_io.printf "Failed to apply migrations: %s\n" error_msg in
+      let* () = Logger.Async.error "Failed to apply migrations: %s" error_msg in
       Lwt.return (Error (error_msg : string) : (unit, string) result))
 ;;
 

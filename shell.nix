@@ -12,5 +12,11 @@ pkgs.mkShell{
     openssl
     ocamlPackages.ocamlformat
     pkg-config
+    sqlite
+    zlib
   ];
+  shellHook = ''
+    export C_INCLUDE_PATH=${pkgs.zlib.dev}/include:$C_INCLUDE_PATH
+    export LIBRARY_PATH=${pkgs.zlib}/lib:$LIBRARY_PATH
+  '';
 }

@@ -11,7 +11,9 @@ let match_member avatars (match_member : Models.Stub.Match_member.t) =
        Lwt.return_unit
      | None ->
        let* _ =
-         Lwt_io.printf
+         Logger.Async.warn
+           ~m:"Store"
+           ~f:"match_member"
            "Warning: Invalid platform_id format for avatar with profile_id: %d: %s\n"
            match_member.profile_id
            avatar.name

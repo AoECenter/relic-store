@@ -20,6 +20,8 @@
    (>= 5.1.0))
   (uuidm
    (>= 0.9.8))
+  (lwt 
+   (>= 5.7.0))
   (alcotest
    (and
     :with-test
@@ -39,5 +41,5 @@
   (base
    (>= v0.12.0))
   (dune
-    (>= 3.15.0))
+    (>= 3.14.2))
   dune-build-info))
