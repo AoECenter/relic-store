@@ -5,4 +5,4 @@
  (modules main)
  (instrumentation
   (backend bisect_ppx))
- (libraries uuidm sqlite3 lwt relic-sdk))
+ (libraries relic_store_lib lwt))

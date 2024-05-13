@@ -1,0 +1,8 @@
+(include_subdirs qualified)
+
+(library
+ (name relic_store_lib)
+ (public_name relic-store)
+ (libraries yojson uuidm sqlite3 relic-sdk lwt)
+ (instrumentation
+  (backend bisect_ppx)))
