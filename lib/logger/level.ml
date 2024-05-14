@@ -4,7 +4,7 @@ type t =
   | WARN
   | ERROR
 
-let to_string = function DEBUG -> "DEBUG" | INFO -> "INFO" | WARN -> "WARN" | ERROR -> "ERROR"
+let to_string = function DEBUG -> "DBG" | INFO -> "INF" | WARN -> "WAR" | ERROR -> "ERR"
 
 let to_color = function
   | DEBUG -> "\x1b[36m" (* Cyan *)

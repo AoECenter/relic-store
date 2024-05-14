@@ -23,5 +23,5 @@ let format_message ?(m = "") ?(f = "") level msg =
     | m, "" -> Printf.sprintf "[%s]" m
     | m, f -> Printf.sprintf "[%s::%s]" m f
   in
-  Printf.sprintf "%s [%s%s%s] %s %s\n%!" time_str color level_str reset location_str msg
+  Printf.sprintf "[%s] [%s%s%s] %s %s\n%!" time_str color level_str reset location_str msg
 ;;

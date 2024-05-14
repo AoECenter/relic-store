@@ -7,7 +7,7 @@ let match_member avatars (match_member : Models.Stub.Match_member.t) =
   | Some avatar ->
     (match Parser.Platform_id.from_str avatar.name with
      | Some (platform, platform_id) ->
-       let* _ = Database.create_player match_member.profile_id platform platform_id avatar.alias in
+       let* _ = Database.create_player match_member.profile_id platform platform_id avatar.alias avatar.country in
        Lwt.return_unit
      | None ->
        let* _ =

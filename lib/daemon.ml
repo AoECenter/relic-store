@@ -8,7 +8,7 @@ let rec tick client () =
   let* _ = Lwt_unix.sleep 4.0 in
   let end_time = Unix.gettimeofday () in
   let* _ =
-    Logger.Async.info ~m:"Daemon" ~f:"tick" "Took %d ms" (int_of_float @@ ((end_time -. start_time) *. 1000.0))
+    Logger.Async.debug ~m:"Daemon" ~f:"tick" "Took %d ms" (int_of_float @@ ((end_time -. start_time) *. 1000.0))
   in
   tick client ()
 ;;

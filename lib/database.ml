@@ -21,12 +21,14 @@ let init () =
   Lwt.return result
 ;;
 
-let create_player profile_id platform platform_id name =
+let create_player profile_id platform platform_id name country_code =
   let _ =
     Lwt_preemptive.detach
       (fun () ->
         let stmt =
-          prepare db_handle "INSERT INTO players (id, profile_id, name, steam_id, xbox_id) VALUES (?, ?, ?, ?, ?)"
+          prepare
+            db_handle
+            "INSERT INTO players (id, profile_id, name, steam_id, xbox_id, country_code) VALUES (?, ?, ?, ?, ?, ?)"
         in
         bind_text stmt 1 (Uuidm.v `V4 |> Uuidm.to_string) |> ignore;
         bind_int stmt 2 profile_id |> ignore;
@@ -35,6 +37,7 @@ let create_player profile_id platform platform_id name =
         | `Steam -> bind_text stmt 4 platform_id |> ignore
         | `Xbox ->
           bind_text stmt 5 platform_id |> ignore;
+          bind_text stmt 6 country_code |> ignore;
           ignore (step stmt))
       ()
   in
